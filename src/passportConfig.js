@@ -5,17 +5,11 @@ const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/userModel');
 const bcrypt = require('bcrypt');
 
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
-const GITHUB_CALLBACK_URL = process.env.NODE_ENV === 'production'
-  ? process.env.GITHUB_CALLBACK_URL_PROD
-  : process.env.GITHUB_CALLBACK_URL_LOCAL;
-
 // Estrategia GitHub
 passport.use(new GitHubStrategy({
-  clientID: GITHUB_CLIENT_ID,
-  clientSecret: GITHUB_CLIENT_SECRET,
-  callbackURL: GITHUB_CALLBACK_URL
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.GITHUB_CALLBACK_URL_LOCAL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     console.log('Entrando en estrategia de GitHub');
