@@ -177,7 +177,7 @@ const authorizationMiddleware = require('../middlewares/authorizationMiddleware'
 const logger = require('../utils/logger');
 
 // Middleware de autorización para permitir solo a los usuarios acceder a estas rutas
-router.use(authorizationMiddleware.isUser);
+// router.use(authorizationMiddleware.isUser);
 
 router.get('/', async (req, res) => {
     try {
