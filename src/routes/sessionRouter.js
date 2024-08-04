@@ -109,7 +109,7 @@ router.get('/login/github', (req, res, next) => {
 }, passport.authenticate('github'));
 
 router.get('/login/github/callback', (req, res, next) => {
-  passport.authenticate('github', (err, user) => {
+  passport.authenticate('github', async (err, user) => {
     if (err) {
       console.error('Error en la autenticación:', err);
       return next(err);
@@ -117,13 +117,30 @@ router.get('/login/github/callback', (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: 'Usuario no encontrado' });
     }
-    req.logIn(user, (err) => {
-      if (err) {
-        console.error('Error en req.logIn:', err);
-        return next(err);
-      }
-      return res.status(200).json({ message: 'Usuario autenticado con éxito', user });
-    });
+    try {
+      req.logIn(user, async (err) => {
+        if (err) {
+          console.error('Error en req.logIn:', err);
+          return next(err);
+        }
+        // Nos aseguramos de que el carrito esté en la sesión del usuario
+        if (!user.cart) {
+          const newCart = await CartRepository.createCart();
+          user.cart = newCart._id;
+          await UserRepository.updateUserByEmail(user.email, { cart: newCart._id });
+        }
+
+        req.session.user = user;
+        req.session.cartId = user.cart;  // Asegura que el cartId esté en la sesión
+        console.log('Usuario autenticado con éxito:', user);
+
+        // Redirigir al usuario a la vista /products
+        return res.redirect('/products');
+      });
+    } catch (err) {
+      console.error('Error en el proceso de autenticación:', err);
+      return next(err);
+    }
   })(req, res, next);
 });
 
