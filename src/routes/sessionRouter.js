@@ -40,6 +40,17 @@ router.post('/login', (req, res, next) => {
       if (!user.cart) {
         const newCart = await CartRepository.createCart();
         user.cart = newCart._id;
+
+        // Depuración: Verificar el tipo de `user`
+        console.log('Tipo de user antes de guardar:', typeof user, user instanceof require('../models/userModel'));
+        
+        // Si `user` no es una instancia de Mongoose, obtén una instancia desde el repositorio
+        if (!(user instanceof require('../models/userModel'))) {
+          console.log('Obteniendo instancia de Mongoose para user');
+          user = await UserRepository.getUserById(user._id);
+          console.log('Tipo de user después de obtener la instancia:', typeof user, user instanceof require('../models/userModel'));
+        }
+
         await user.save();
       }
 
